@@ -37,7 +37,8 @@ router.post("/", upload.single("image"), async (req, res) => {
             [name, email, phone, location, department, category, subCategory, otherSubCategory, title, details, image]
         );
 
-        res.json({ message: "Ticket submitted successfully!", ticketId: result.insertId });
+        res.status(201).json({ message: "Ticket submitted successfully!", ticketId: result.insertId });
+
     } catch (err) {
         console.error("Error inserting ticket:", err);
         res.status(500).json({ error: "Database error. Ticket not saved." });
@@ -49,7 +50,7 @@ router.post("/", upload.single("image"), async (req, res) => {
 
 router.get("/", async (req, res) => {
     try {
-        const results = await query("SELECT * FROM tickets");
+        const results = await query("SELECT * FROM tickets ORDER BY created_at DESC");
 
         // Map the results and include the image path (base URL + image filename)
         const formattedResults = results.map(ticket => ({
@@ -130,25 +131,6 @@ router.put("/:id/status", async (req, res) => {
   });
   
 
-
-// GET the 5 Most Recent Tickets
-// router.get("/recent/latest", async (req, res) => {
-//     try {
-//         const results = await query("SELECT * FROM tickets ORDER BY id DESC LIMIT 5");
-
-//         // Format results with image URLs
-//         const formattedResults = results.map(ticket => ({
-//             ...ticket,
-//             image: ticket.image ? `${baseUrl}/${uploadsPath}/${ticket.image}` : null
-//         }));
-
-//         res.json(formattedResults);
-//     } catch (err) {
-//         console.error("Error fetching recent tickets:", err);
-//         res.status(500).json({ error: "Database error. Could not retrieve recent tickets." });
-//     }
-// });
-
 router.get("/recent/latest", async (req, res) => {
     try {
         const results = await query(`
@@ -163,7 +145,7 @@ router.get("/recent/latest", async (req, res) => {
                 tickets.image
             FROM tickets
             LEFT JOIN users ON tickets.assigned_to = users.id
-            ORDER BY tickets.id DESC
+            ORDER BY tickets.created_at DESC
             LIMIT 5
         `);
 
@@ -380,6 +362,26 @@ router.get("/by-email/:email", async (req, res) => {
     }
 });
 
+//  📌 GET tickets created by a specific user (by user ID)
+router.get("/assigned-to/:userId", async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const results = await query("SELECT * FROM tickets WHERE assigned_to = ?", [userId]);
+
+        const formattedResults = results.map(ticket => ({
+            ...ticket,
+            image: ticket.image ? `${baseUrl}/${uploadsPath}/${ticket.image}` : null
+        }));
+
+        res.json(formattedResults);
+    } catch (err) {
+        console.error("Error fetching tickets by user ID:", err);
+        res.status(500).json({ error: "Database error. Could not retrieve tickets for the user." });
+    }
+});
+
+
 // 📌 GET tickets assigned to a specific user by email
 router.get("/assigned/:email", async (req, res) => {
     const { email } = req.params;
@@ -399,6 +401,8 @@ router.get("/assigned/:email", async (req, res) => {
         res.status(500).json({ error: "Database error. Could not retrieve assigned tickets." });
     }
 });
+
+//
 
 
 

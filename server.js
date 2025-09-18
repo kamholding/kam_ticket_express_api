@@ -7,18 +7,19 @@ const ticketRoutes = require("./routes/tickets");
 const authRoutes = require("./routes/auth");
 const commentRoutes = require("./routes/comment");
 const userRoutes = require("./routes/user");
+
 // const protectedRoutes = require("./routes/protected");
 
 
 dotenv.config();
 const app = express();
 
-// Middleware
-// app.use(cors());
-// app.use(cors({ origin: "http://localhost:3000" }));
-
 app.use(cors({
+<<<<<<< HEAD
     origin: ["http://localhost:3000","http://192.168.6.239:3000", "https://kam-ticket.onrender.com"],
+=======
+    origin: ["http://localhost:3000", "http://localhost:3001", "https://kam-ticket.onrender.com"],
+>>>>>>> 9dc219143799ac56f2d6a2d018ab644e4dd965c6
     credentials: true // add this if you are using cookies or sessions
   }));
   
