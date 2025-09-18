@@ -18,7 +18,7 @@ const app = express();
 // app.use(cors({ origin: "http://localhost:3000" }));
 
 app.use(cors({
-    origin: ["http://localhost:3000", "https://kam-ticket.onrender.com"],
+    origin: ["http://localhost:3000","http://192.168.6.239:3000", "https://kam-ticket.onrender.com"],
     credentials: true // add this if you are using cookies or sessions
   }));
   
